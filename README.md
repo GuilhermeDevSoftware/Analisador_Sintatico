@@ -31,43 +31,74 @@ O sistema realiza análise léxica e sintática de uma linguagem simples, permit
 
 # 📂 Estrutura do Projeto
 
-```text
+
 compilador-sintatico/
+
 │
+
 ├── src/
+
 │   └── compilador/sintatico/
+
 │       ├── AnalisadorSintatico.java
+
 │       ├── Parser.java
+
 │       ├── Scanner.java
+
 │       └── Tokens.java
+
 │
+
 ├── scanner.flex
+
 ├── parser.cup
+
 ├── entrada.txt
 ├── conversor.txt
+
 ├── build.xml
+
 ├── manifest.mf
+
 ├── java-cup-11b.jar
+
 ├── jflex-full-1.9.1.jar
+
 └── nbproject/
 
----
-Tokens Reconhecidos
+
+# Tokens Reconhecidos
 
 O analisador reconhece diversos tokens da linguagem, incluindo:
 
-Token	Descrição
-+	Soma
--	Subtração
-*	Multiplicação
-/	Divisão
-%	Módulo
-++	Incremento
---	Decremento
-if	Estrutura condicional
-else	Condicional alternativa
-while	Laço de repetição
-for	Laço de repetição
-=	Atribuição
-ID	Identificadores
-NUMERO	Valores numéricos
+## Token	Descrição
+
+### +	
+Soma
+### -	
+Subtração
+### *	
+Multiplicação
+### /	
+Divisão
+### %	
+Módulo
+### ++	
+Incremento
+### --	
+Decremento
+### if	
+Estrutura condicional
+### else	
+Condicional alternativa
+### while	
+Laço de repetição
+### for	
+Laço de repetição
+### =	
+Atribuição
+### ID	
+Identificadores
+### NUMERO	
+Valores numéricos
