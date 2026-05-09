@@ -1,0 +1,97 @@
+/* Documentação: http://www2.cs.tum.edu/projects/cup/ */
+import java_cup.runtime.*;
+
+parser code {: 
+    // Conectar o parser ao scanner
+    Scanner s;
+    Parser(Scanner s) { this.s = s; }
+
+    // Tabela de símbolos para armazenar variáveis
+    java.util.Map<String, Integer> simbolos = new java.util.HashMap<String, Integer>();
+
+    // Metodo para reportar erros
+    public void report_error(String message, Object info) {
+        System.err.print(message);
+        if (info instanceof Symbol) {
+            Symbol s = (Symbol) info;
+            if (s.left >= 0) {
+                System.err.print(" na linha " + (s.left + 1));
+                if (s.right >= 0)
+                    System.err.print(", coluna " + (s.right + 1));
+            }
+        }
+        System.err.println();
+    }
+:}
+
+/* Conectar esse parser ao scanner */
+init with {:  :};
+scan with {: return s.next_token(); :};
+
+/* Terminais - (tokens retornados pelo scanner) */
+terminal SEMI, MAIS, MENOS, VEZES, MENOSUNIT, LPAREN, RPAREN, LBRACE, RBRACE; 
+terminal ATRIB, POT, DIV, MOD, MAISMAIS, MENOSMENOS, IF, ELSE, WHILE, FOR, LOWER_THAN_ELSE; 
+terminal Integer NUMERO; 
+terminal String ID; 
+
+/* Não terminais */
+non terminal inicio, bloco, bloco_sequencia, repeticao; 
+non terminal Object comando, condicional; 
+non terminal Integer exp; 
+
+/* Precedência de operadores */
+precedence left MAIS, MENOS, MAISMAIS, MENOSMENOS; 
+precedence left DIV, VEZES, MOD; 
+precedence right POT; 
+precedence nonassoc LOWER_THAN_ELSE;
+precedence nonassoc ELSE;
+
+/* Regras da Gramática */
+start with inicio;
+
+// AJUSTE: inicio agora aceita a sequência completa de comandos do arquivo
+inicio ::= bloco_sequencia;
+
+bloco ::= comando
+        | LBRACE bloco_sequencia RBRACE;
+
+bloco_sequencia ::= bloco_sequencia comando
+                  | comando;
+
+comando ::= exp:e SEMI             {: System.out.println("Resultado: " + e); :}
+          | condicional            // Removi o SEMI daqui
+          | repeticao              // Removi o SEMI daqui
+          | LBRACE bloco_sequencia RBRACE
+          | error SEMI;
+
+exp ::= exp:e1 MAIS exp:e2       {: RESULT = e1 + e2; :}
+      | exp:e1 MENOS exp:e2      {: RESULT = e1 - e2; :}
+      | exp:e1 MOD exp:e2        {: RESULT = e1 % e2; :}
+      | exp:e1 VEZES exp:e2      {: RESULT = e1 * e2; :}
+      | exp:e1 DIV exp:e2        {: RESULT = e1 / e2; :}
+      | exp:e1 POT exp:e2        {: RESULT = (int)Math.pow(e1, e2); :}
+      | MENOS exp:e              {: RESULT = -e; :} %prec MENOSUNIT
+      | exp:e MAISMAIS           {: RESULT = e + 1; :}
+      | exp:e MENOSMENOS         {: RESULT = e - 1; :}
+      | LPAREN exp:e RPAREN      {: RESULT = e; :}
+      | NUMERO:n                 {: RESULT = n; :}
+      | ID:i                     {: 
+                                    // AJUSTE: Proteção contra NullPointerException
+                                    Integer v = simbolos.get(i);
+                                    if (v == null) {
+                                        System.err.println("Aviso: variavel " + i + " nao inicializada. Usando 0.");
+                                        v = 0;
+                                    }
+                                    RESULT = v; 
+                                 :}
+      | ID:i ATRIB exp:e         {: simbolos.put(i, e); RESULT = e; :}
+;
+
+repeticao ::= WHILE LPAREN exp:e RPAREN comando
+            | FOR LPAREN exp:e1 SEMI exp:e2 SEMI exp:e3 RPAREN comando
+            ;
+
+condicional ::= IF LPAREN exp RPAREN comando %prec LOWER_THAN_ELSE
+              | IF LPAREN exp RPAREN comando ELSE comando
+              ;
+

@@ -1,0 +1,15 @@
+/* Conversor de Temperatura */
+
+celsius = 35;
+
+/* Formula: (C * 9/5) + 32 */
+fahrenheit = (celsius * 9 / 5) + 32;
+
+/* Formula: C + 273 */
+kelvin = celsius + 273;
+
+/* Resultados que aparecerão no console */
+exibirF = fahrenheit;
+exibirK = kelvin;
+
+
